@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Маркази Савдо Ҳоким</title>
+
+<style>
+body{
+margin:0;
+font-family: 'Segoe UI', sans-serif;
+background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+
+header{
+text-align:center;
+padding:20px;
+font-size:22px;
+font-weight:bold;
+letter-spacing:2px;
+animation: fadeIn 1.5s ease-in-out;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:rgba(255,255,255,0.1);
+backdrop-filter: blur(10px);
+padding:15px;
+margin:10px 0;
+border-radius:15px;
+text-align:center;
+cursor:pointer;
+transition:0.3s;
+}
+
+.card:hover{
+transform:scale(1.05);
+background:rgba(255,255,255,0.2);
+}
+
+button{
+background:#00c6ff;
+background: linear-gradient(to right,#0072ff,#00c6ff);
+border:none;
+padding:10px;
+border-radius:10px;
+color:white;
+width:100%;
+margin-top:10px;
+font-size:16px;
+}
+
+input{
+width:60px;
+padding:5px;
+border-radius:5px;
+border:none;
+text-align:center;
+}
+
+table{
+width:100%;
+margin-top:15px;
+}
+
+td{
+padding:5px;
+text-align:center;
+}
+
+.fade{
+animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn{
+from{opacity:0; transform:translateY(10px);}
+to{opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<header>МАРКАЗИ САВДО ҲОКИМ</header>
+
+<div class="container" id="home">
+
+<div class="card" onclick="openPage('vose')">Хлеб Восеъ</div>
+<div class="card" onclick="openPage('kulob')">Хлеб Кӯлоб</div>
+<div class="card" onclick="openPage('buluchka')">Булучкаи шоҳон</div>
+<div class="card" onclick="openPage('keks')">Кекс</div>
+<div class="card" onclick="openPage('korjik')">Коржик</div>
+<div class="card" onclick="openPage('other')">Дигарҳо</div>
+
+</div>
+
+<div class="container fade" id="page" style="display:none;"></div>
+
+<script>
+const phone="992175333343";
+
+const products={
+vose:["Хлеб","Хлеби сиёҳ","Кулчаи майда","Кулчаи калон","Нон"],
+kulob:["Хлеб калон","Хлеби майда","Нон"],
+buluchka:["Булочки кунчити","Булочки какос","Булочки чем","Булочки шоколадни","Кекс","Кекси каробка"],
+keks:["Кекси калон","Кекси майда"],
+korjik:["Коржик"]
+};
+
+function openPage(section){
+document.getElementById("home").style.display="none";
+let html=`<button onclick="goBack()">← Бозгашт</button>`;
+html+=`<table>`;
+
+if(section==="other"){
+html+=`
+<tr><td>Ном</td><td><input id="oname"></td></tr>
+<tr><td>Дона</td><td><input type="number" id="oqty"></td></tr>
+<tr><td>Нарх</td><td><input type="number" id="oprice"></td></tr>
+</table>
+<button onclick="sendOther()">Ирсол</button>
+`;
+}else{
+products[section].forEach((item,i)=>{
+let saved=localStorage.getItem(section+i)||"";
+html+=`
+<tr>
+<td>${item}</td>
+<td><input type="number" value="0" onchange="calc()"></td>
+<td><input type="number" value="${saved}" 
+onchange="localStorage.setItem('${section+i}',this.value);calc()"></td>
+<td class="total">0</td>
+</tr>`;
+});
+html+=`</table>
+<h3>Итог: <span id="grand">0</span></h3>
+<button onclick="sendWA()">Ирсол</button>`;
+}
+
+document.getElementById("page").innerHTML=html;
+document.getElementById("page").style.display="block";
+}
+
+function goBack(){
+document.getElementById("page").style.display="none";
+document.getElementById("home").style.display="block";
+}
+
+function calc(){
+let rows=document.querySelectorAll("table tr");
+let grand=0;
+rows.forEach(row=>{
+if(row.children.length<4)return;
+let qty=row.children[1].children[0].value||0;
+let price=row.children[2].children[0].value||0;
+let total=qty*price;
+row.children[3].innerText=total;
+grand+=total;
+});
+document.getElementById("grand").innerText=grand;
+}
+
+function sendWA(){
+let text="Накладной:%0A";
+let rows=document.querySelectorAll("table tr");
+rows.forEach(row=>{
+if(row.children.length<4)return;
+let name=row.children[0].innerText;
+let qty=row.children[1].children[0].value;
+let price=row.children[2].children[0].value;
+let total=row.children[3].innerText;
+if(qty>0){
+text+=name+" - "+qty+" x "+price+" = "+total+"%0A";
+}
+});
+text+="Итог: "+document.getElementById("grand").innerText;
+window.open("https://wa.me/"+phone+"?text="+text);
+}
+
+function sendOther(){
+let name=document.getElementById("oname").value;
+let qty=document.getElementById("oqty").value;
+let price=document.getElementById("oprice").value;
+let total=qty*price;
+let text="Дигарҳо:%0A"+name+" - "+qty+" x "+price+" = "+total;
+window.open("https://wa.me/"+phone+"?text="+text);
+}
+</script>
+
+</body>
+  </html>
